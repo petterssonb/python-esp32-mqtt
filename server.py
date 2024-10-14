@@ -3,6 +3,9 @@ import paho.mqtt.client as mqtt
 import json
 import ssl
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 

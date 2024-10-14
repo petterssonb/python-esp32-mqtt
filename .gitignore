@@ -131,3 +131,5 @@ lib
 test
 src/192.168.1.19.pem
 src/192.168.1.19-key.pem
+__pycache__
+flet_app.py.zip
