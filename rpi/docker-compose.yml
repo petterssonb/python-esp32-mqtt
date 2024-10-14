@@ -1,0 +1,10 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - /home/petterssonb/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - /home/petterssonb/mosquitto/data:/mosquitto/data
+      - /home/petterssonb/mosquitto/log:/mosquitto/log
