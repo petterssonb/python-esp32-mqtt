@@ -48,7 +48,7 @@ The PoC includes the following components:
      ```
    - Run the Flask server on your MacBook:
      ```bash
-     python app.py
+     python server.py
      ```
    
 3. **Raspberry Pi (MQTT broker)**:
