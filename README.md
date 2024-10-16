@@ -1,5 +1,11 @@
 # Secure IoT Proof of Concept (PoC) using ESP32, Flask, MQTT, and Docker
 
+[Powerpoint](content/IoT-PoC.pptx)
+
+## Screenshots/ videos
+
+Adding later
+
 ## Overview
 
 This repository contains the Proof of Concept (PoC) for a secure IoT solution. The PoC demonstrates secure communication between an ESP32 sensor, a Flask server running on a MacBook, and a Raspberry Pi hosting an MQTT broker inside a Docker container. The communication path is secured using a VPN and will later be upgraded to HTTPS.
