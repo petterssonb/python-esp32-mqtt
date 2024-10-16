@@ -33,6 +33,10 @@ The PoC includes the following components:
 
 3. **MQTT Broker (Raspberry Pi)**:
    - The Raspberry Pi hosts an MQTT broker inside a Docker container, which receives and processes the sensor data.
+  
+4. **Zero Trust for Internal Communication**:
+	- Each connection, even those within the trusted VPN network, requires device or client authentication using certificates or keys. 
+	- Devices and apps are granted the minimum access rights necessary for their function, ensuring the principle of least privilege is maintained.
 
 ## Installation
 
@@ -76,6 +80,9 @@ The PoC includes the following components:
 - **Security Enhancements**:
   - Implement TLS/mTLS for securing the communication between devices.
   - Further refine the system's security features following Zero Trust principles.
+
+- **Optimization**:
+  - Switch to pure C for more optimized performance in the script to retrieve the DHT11 sensor data
   
 ## Security Planning and CRA Requirements
 
@@ -102,6 +109,12 @@ This project considers several key security elements to ensure compliance with t
   
 - **Data Tampering**:
   - MQTT broker messages will be secured through TLS to ensure data integrity during transmission.
+
+- **Firmware Tampering**: 
+  - Mitigation: Secure boot will prevent any tampered firmware from running on the ESP32, while signed OTA updates will ensure that only trusted updates are applied.
+  
+- **Denial-of-Service (DoS) Attacks**: 
+  - Mitigation: The system will incorporate rate-limiting and traffic filtering to mitigate potential DoS attacks, preventing the system from being overwhelmed by excessive requests. Additionally, the MQTT broker will implement access control lists (ACLs) to limit access to critical topics.
 
 ## How the Design Meets CRA Requirements
 
