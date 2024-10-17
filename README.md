@@ -2,9 +2,9 @@
 
 Click on [Powerpoint](content/IoT-PoC.pptx) and then **view raw** to download it
 
-## Screenshots/ videos
+## Screenshots
 
-Adding later
+Click [here](content/README.md) to view the screenshots of the program running.
 
 ## Overview
 
