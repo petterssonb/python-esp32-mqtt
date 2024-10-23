@@ -1,5 +1,6 @@
-#include <WiFi.h>
-#include <HTTPClient.h>
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
 #include "DHT.h"
 #include "config.h"
 
@@ -7,44 +8,57 @@
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-void setup() {
-    Serial.begin(115200);
-    dht.begin();
-    WiFi.begin(ssid, password);
+BLECharacteristic *pCharacteristic;
+bool deviceConnected = false;
 
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.println("Connecting to WiFi...");
+class MyCallbacks : public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
+      deviceConnected = true;
+    };
+
+    void onDisconnect(BLEServer* pServer) {
+      deviceConnected = false;
     }
-    Serial.println("Connected to WiFi");
+};
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+
+  BLEDevice::init("ESP32_Sensor");
+  BLEServer *pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyCallbacks());
+
+  BLEService *pService = pServer->createService(SERVICE_UUID);
+
+  pCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );
+
+  pService->start();
+  BLEAdvertising *pAdvertising = pServer->getAdvertising();
+  pAdvertising->start();
 }
 
 void loop() {
-    float temperature = dht.readTemperature();
-    float humidity = dht.readHumidity();
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
 
-    if (isnan(temperature) || isnan(humidity)) {
-        Serial.println("Failed to read from DHT sensor!");
-        return;
-    }
+  if (isnan(temperature) || isnan(humidity)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
 
-    String jsonData = "{\"temperature\": " + String(temperature) + ", \"humidity\": " + String(humidity) + "}";
+  String jsonData = "{\"temperature\": " + String(temperature) + ", \"humidity\": " + String(humidity) + "}";
 
-    if (WiFi.status() == WL_CONNECTED) {
-        HTTPClient http;
-        http.begin(serverUrl);
-        http.addHeader("Content-Type", "application/json");
+  if (deviceConnected) {
+    pCharacteristic->setValue(jsonData.c_str());
+    pCharacteristic->notify();
+    Serial.println("Data sent via BLE: " + jsonData);
+  } else {
+    Serial.println("BLE not connected.");
+  }
 
-        int httpResponseCode = http.POST(jsonData);
-        if (httpResponseCode > 0) {
-            String response = http.getString();
-            Serial.println(response);
-        } else {
-            Serial.println("Error in HTTP request");
-        }
-
-        http.end();
-    }
-
-    delay(10000);
+  delay(10000);
 }
