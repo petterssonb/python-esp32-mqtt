@@ -28,18 +28,25 @@ def notification_handler(sender, data):
 async def main():
     devices = await BleakScanner.discover()
     esp32_address = None
-    
+
     for device in devices:
-        if "ESP32_Sensor" in device.name:
+        if device.name and "ESP32_Sensor" in device.name:
             esp32_address = device.address
             break
-    
+
     if not esp32_address:
         print("ESP32 not found")
         return
-    
-    async with BleakClient(esp32_address) as client:
+
+    async with BleakClient(esp32_address, timeout=30.0) as client:
         print("Connected to ESP32")
+
+        services = await client.get_services()
+        print("Services and Characteristics:")
+        for service in services:
+            print(f"Service: {service.uuid}")
+            for characteristic in service.characteristics:
+                print(f"  Characteristic: {characteristic.uuid}, Properties: {characteristic.properties}")
 
         await client.start_notify(CHARACTERISTIC_UUID, notification_handler)
 

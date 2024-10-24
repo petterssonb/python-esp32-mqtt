@@ -1,6 +1,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <BLE2902.h>
 #include "DHT.h"
 #include "config.h"
 
@@ -30,15 +31,22 @@ void setup() {
   pServer->setCallbacks(new MyCallbacks());
 
   BLEService *pService = pServer->createService(SERVICE_UUID);
-
+  
   pCharacteristic = pService->createCharacteristic(
                       CHARACTERISTIC_UUID,
                       BLECharacteristic::PROPERTY_NOTIFY
                     );
 
+  pCharacteristic->addDescriptor(new BLE2902());
+
   pService->start();
+
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
   pAdvertising->start();
+  
+  Serial.println("Bluetooth initialized and advertising.");
 }
 
 void loop() {
