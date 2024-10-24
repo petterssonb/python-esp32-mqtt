@@ -1,129 +1,122 @@
-# Secure IoT Proof of Concept (PoC) using ESP32, Flask, MQTT, and Docker
+# Secure IoT Proof of Concept (PoC) using ESP32, BLE, Flask, MQTT, and Docker
 
-Click on [Powerpoint](content/IoT-PoC.pptx) and then **view raw** to download it
+Click on [Powerpoint](content/IoT-PoC.pptx) and then **view raw** to download it **(OLD) soon to be upgraded**
 
 ## Screenshots
 
-Click [here](content/README.md) to view the screenshots of the program running.
+Click [here](content/README.md) to view the screenshots of the program running. **(OLD) soon to be upgraded** 
 
 ## Overview
 
-This repository contains the Proof of Concept (PoC) for a secure IoT solution. The PoC demonstrates secure communication between an ESP32 sensor, a Flask server running on a MacBook, and a Raspberry Pi hosting an MQTT broker inside a Docker container. The communication path is secured using a VPN and will later be upgraded to HTTPS.
+This repository contains the Proof of Concept (PoC) for a secure IoT solution. The PoC demonstrates secure communication between an ESP32 sensor, a BLE Server running on a MacBook, and a Raspberry Pi hosting an MQTT broker inside a Docker container. The communication path is secured using HTTPS and a VPN (Netbird) solution, ensuring the integrity of the transmitted data.
 
-This project was developed as part of a task to meet the requirements of the Cyber Resilience Act (CRA), ensuring a secure and resilient IoT architecture.
+This project was developed to meet the requirements of the Cyber Resilience Act (CRA), ensuring a secure and resilient IoT architecture.
 
 ## System Architecture
 
 The PoC includes the following components:
 
-1. **ESP32**: A WiFi-enabled microcontroller that collects sensor data and sends it over HTTP (to be upgraded to HTTPS).
-2. **Flask Server**: A Python Flask application running on a MacBook, acting as a local server to receive data from the ESP32.
-3. **Raspberry Pi (RPI)**: A remote device hosting an MQTT broker inside a Docker container.
-4. **Netbird VPN**: A secure VPN tunnel connecting the Flask server to the Raspberry Pi, ensuring secure transmission of MQTT messages.
+1. **ESP32**: A WiFi-enabled microcontroller that collects sensor data and transmits it via Bluetooth (BLE).
+2. **BLE Server (MacBook)**: A Python-based server running on a MacBook, which receives data from the ESP32 via BLE and forwards it securely to the Flask server over HTTPS.
+3. **Flask Server (MacBook)**: A Python Flask application running on the same MacBook, acting as an HTTPS endpoint to receive sensor data from the BLE server.
+4. **Raspberry Pi (RPI)**: A remote device hosting an MQTT broker inside a Docker container, receiving and processing sensor data securely.
+5. **Netbird VPN**: A secure VPN tunnel connecting the Flask server to the Raspberry Pi, ensuring secure transmission of MQTT messages.
 
 ### Communication Flow
 
-1. **ESP32 -> Flask (MacBook)**:
-   - ESP32 sends sensor data via HTTP (soon HTTPS) to the Flask server.
-   - Security upgrade to HTTPS is planned to protect data in transit.
-  
-2. **Flask (MacBook) -> Raspberry Pi**:
-   - Flask forwards the received data to the MQTT broker hosted on a Raspberry Pi over an MQTT protocol.
-   - Communication between MacBook and Raspberry Pi is secured using the Netbird VPN solution.
+1. **ESP32 -> BLE Server (MacBook)**:
+   - The ESP32 collects sensor data (e.g., temperature, humidity) and transmits it via Bluetooth Low Energy (BLE) to the BLE server running on a MacBook.
 
-3. **MQTT Broker (Raspberry Pi)**:
-   - The Raspberry Pi hosts an MQTT broker inside a Docker container, which receives and processes the sensor data.
-  
-4. **Zero Trust for Internal Communication**:
-	- Each connection, even those within the trusted VPN network, requires device or client authentication using certificates or keys. 
-	- Devices and apps are granted the minimum access rights necessary for their function, ensuring the principle of least privilege is maintained.
+2. **BLE Server (MacBook) -> Flask Server (MacBook)**:
+   - The BLE server receives the sensor data from the ESP32 and forwards the data to the Flask server via HTTPS.
+   - The Flask server ensures that the data is securely transmitted and processed.
+
+3. **Flask Server (MacBook) -> Raspberry Pi**:
+   - The Flask server forwards the received data to the MQTT broker hosted on the Raspberry Pi over the MQTT protocol.
+   - The communication between the MacBook (Flask server) and the Raspberry Pi (MQTT broker) is secured using Netbird VPN, ensuring encrypted communication.
+
+4. **MQTT Broker (Raspberry Pi)**:
+   - The Raspberry Pi hosts the MQTT broker inside a Docker container, receiving and processing the sensor data.
+   - MQTT messages are securely transmitted between the Flask server and Raspberry Pi, ensuring data integrity.
+
+5. **Zero Trust for Internal Communication**:
+   - Each connection, including those within the VPN network, requires authentication using certificates or keys. Devices and applications are granted the minimum access rights necessary for their function, following the principle of least privilege.
+
+### Communication Summary
+- **ESP32 -> BLE Server (MacBook)**: Bluetooth Low Energy (BLE)
+- **BLE Server (MacBook) -> Flask Server (MacBook)**: HTTPS
+- **Flask Server (MacBook) -> Raspberry Pi**: MQTT over Netbird VPN
 
 ## Installation
 
 ### Prerequisites
 - ESP32 (with required sensors)
-- MacBook with Python installed
+- MacBook with Python and BLE support
 - Raspberry Pi (with Docker installed)
 - Netbird VPN set up between the MacBook and Raspberry Pi
 
 ### Steps to Set Up
 
 1. **ESP32 Configuration**:
-   - Flash the ESP32 with the appropriate firmware to collect sensor data and send HTTP POST requests.
+   - Flash the ESP32 with the appropriate firmware to collect sensor data and send it via BLE.
    
-2. **Flask Server**:
-   - Install required dependencies:
+2. **BLE Server (MacBook)**:
+   - Install the required Python dependencies for BLE communication and HTTPS:
      ```bash
-     pip install Flask
+     pip install Flask bleak requests
      ```
-   - Run the Flask server on your MacBook:
+   - Run the BLE server on your MacBook to start receiving BLE data from the ESP32 and forward it to the Flask server:
+     ```bash
+     python bleServer.py
+     ```
+
+3. **Flask Server (MacBook)**:
+   - Ensure the Flask server is properly set up to receive HTTPS requests:
      ```bash
      python server.py
      ```
-   
-3. **Raspberry Pi (MQTT broker)**:
+
+4. **Raspberry Pi (MQTT broker)**:
    - Ensure Docker is installed and set up on the Raspberry Pi.
    - Use a Docker container to run the MQTT broker (e.g., Eclipse Mosquitto):
      ```bash
      docker run -d -p 1883:1883 -p 9001:9001 eclipse-mosquitto
      ```
 
-4. **Netbird VPN Setup**:
+5. **Netbird VPN Setup**:
    - Follow [Netbird](https://netbird.io/docs) documentation to establish a secure VPN tunnel between your MacBook and Raspberry Pi.
-   - Once connected, the Raspberry Pi will securely receive MQTT messages.
+   - Once connected, the Raspberry Pi will securely receive MQTT messages over the VPN.
 
-## Upcoming Features
+## Security Enhancements
 
 - **HTTPS Communication**:
-  - The current implementation uses HTTP to transmit data between ESP32 and Flask. In line with the CRA requirements for secure communication, this will be upgraded to HTTPS.
+   - The current implementation uses HTTPS to securely transmit data between the BLE server and the Flask server, ensuring protection from Man-in-the-Middle (MITM) attacks.
 
-- **Security Enhancements**:
-  - Implement TLS/mTLS for securing the communication between devices.
-  - Further refine the system's security features following Zero Trust principles.
+- **Zero Trust Model**:
+   - The system follows the Zero Trust principle by requiring authentication for each internal connection and limiting access rights.
 
-- **Optimization**:
-  - Switch to pure C for more optimized performance in the script to retrieve the DHT11 sensor data
-  
-## Security Planning and CRA Requirements
-
-This project considers several key security elements to ensure compliance with the Cyber Resilience Act:
-
-1. **Security-by-Design**:
-   - The system is designed from the ground up with security in mind, using VPN to secure communication between devices and soon upgrading HTTP to HTTPS.
-   - MQTT communication is restricted to authenticated clients.
-   
-2. **Updateability**:
-   - Future plans include designing OTA (Over-the-Air) updates for the ESP32 to ensure that security patches can be easily applied.
-   
-3. **Vulnerability Management**:
-   - A security monitoring system will be put in place to detect and report vulnerabilities in real-time.
-   - Dockerized deployment of the MQTT broker allows quick updates and containerized security isolation.
+- **VPN Security**:
+   - All communication between the Flask server and the Raspberry Pi is secured via the Netbird VPN, preventing unauthorized access.
 
 ## Potential Threats and Mitigation
 
 - **Man-in-the-Middle (MITM) Attacks**:
-  - Data between the ESP32 and Flask server will be protected using HTTPS to prevent MITM attacks.
-  
+  - Data between the BLE server and Flask server is protected using HTTPS to prevent MITM attacks.
+
 - **Unauthorized Access**:
-  - VPN ensures that the communication between Flask and Raspberry Pi is restricted to authenticated devices.
-  
+  - The VPN ensures that communication between the Flask server and Raspberry Pi is restricted to authenticated devices only.
+
 - **Data Tampering**:
-  - MQTT broker messages will be secured through TLS to ensure data integrity during transmission.
+  - MQTT broker messages are secured through the VPN, ensuring data integrity during transmission.
 
-- **Firmware Tampering**: 
-  - Mitigation: Secure boot will prevent any tampered firmware from running on the ESP32, while signed OTA updates will ensure that only trusted updates are applied.
-  
-- **Denial-of-Service (DoS) Attacks**: 
-  - Mitigation: The system will incorporate rate-limiting and traffic filtering to mitigate potential DoS attacks, preventing the system from being overwhelmed by excessive requests. Additionally, the MQTT broker will implement access control lists (ACLs) to limit access to critical topics.
+## Compliance with CRA Requirements
 
-## How the Design Meets CRA Requirements
+The Cyber Resilience Act (CRA) mandates strict security measures for IoT devices, and our design aligns with the act by:
 
-The Cyber Resilience Act mandates strict security measures for IoT devices, and our design aligns with the act by:
-
-1. **Implementing Secure Communication Paths**: Through HTTPS, TLS, and VPN, the solution ensures that data in transit is protected.
-2. **Emphasizing Updateability and Maintenance**: Future updates, including security patches, are planned with OTA mechanisms and containerized MQTT brokers.
-3. **Vulnerability Management**: Plans to integrate security monitoring and alerts to address potential vulnerabilities proactively.
+1. **Implementing Secure Communication**: Through HTTPS, TLS, and VPN, the solution ensures that data in transit is encrypted and protected.
+2. **Updateability**: Future updates include plans for OTA (Over-the-Air) mechanisms and security patches for the ESP32.
+3. **Vulnerability Management**: The system is designed to proactively detect and address potential vulnerabilities, ensuring compliance with CRA requirements.
 
 ## Conclusion
 
-This PoC showcases a secure IoT solution using ESP32, Flask, MQTT, Docker, and VPN technologies. It provides a foundation for meeting the Cyber Resilience Act's security requirements, making it a viable candidate for transitioning into a production-ready system. Further security enhancements are planned, such as upgrading HTTP to HTTPS and implementing OTA updates for the ESP32.
+This PoC demonstrates a secure IoT solution using ESP32, BLE, Flask, MQTT, Docker, and Netbird VPN. It showcases a robust architecture designed to meet the Cyber Resilience Act's security requirements, with future plans for further enhancements such as OTA updates and improved security monitoring.
