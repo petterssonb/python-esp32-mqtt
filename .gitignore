@@ -133,3 +133,5 @@ flet_app.py.zip
 isrgrootx1.pem
 letsencrypt
 data
+cert.pem
+key.pem

@@ -8,6 +8,7 @@ load_dotenv()
 
 CHARACTERISTIC_UUID = os.getenv("CHARACTERISTIC_UUID")
 SERVICE_UUID = os.getenv("SERVICE_UUID")
+cert_path = os.path.join(os.path.dirname(__file__), "cert.pem")
 
 if not CHARACTERISTIC_UUID or not SERVICE_UUID:
     raise ValueError("Please define CHARACTERISTIC_UUID and SERVICE_UUID in the .env file")
@@ -15,12 +16,12 @@ if not CHARACTERISTIC_UUID or not SERVICE_UUID:
 def notification_handler(sender, data):
     json_data = data.decode('utf-8')
     print(f"Received data from ESP32: {json_data}")
-    
-    url = "http://localhost:5001/sensor"
+
+    url = os.getenv("FLASK_URL")
     headers = {'Content-Type': 'application/json'}
     
     try:
-        response = requests.post(url, data=json_data, headers=headers)
+        response = requests.post(url, data=json_data, headers=headers, verify=cert_path)
         print(f"Flask server response: {response.json()}")
     except Exception as e:
         print(f"Failed to send data to Flask server: {e}")
