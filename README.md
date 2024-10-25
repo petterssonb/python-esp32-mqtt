@@ -1,6 +1,6 @@
 # Secure IoT Proof of Concept (PoC) using ESP32, BLE, Flask, MQTT, and Docker
 
-Click on [Powerpoint](content/IoT-PoC.pptx) and then **view raw** to download it **(OLD) soon to be upgraded**
+Click on [Powerpoint](content/IoT-PoC.pptx) and then **view raw** to download it
 
 ## Screenshots
 
