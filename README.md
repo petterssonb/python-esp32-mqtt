@@ -96,10 +96,42 @@ Ensure that the following components are available:
 - **Raspberry Pi**: Docker-installed device for hosting MQTT broker.
 - **Netbird VPN**: Configured and set up between MacBook and Raspberry Pi for secure communication.
 
+### Cloning the Repository with Submodules
+
+This repository includes a submodule for **arduino-esp32** under the `lib` directory, required for Bluetooth services. To clone the repository with the submodule:
+
+1. **Clone the repository with submodules**:
+   ```bash
+   git clone --recurse-submodules https://github.com/yourusername/python-esp32-mqtt.git
+   ```
+
+   - If you've already cloned the repository without submodules, initialize and update the submodule separately:
+     ```bash
+     git submodule update --init --recursive
+     ```
+
+2. **Navigate to the project directory**:
+   ```bash
+   cd python-esp32-mqtt
+   ```
+
 ### Step-by-Step Setup
 
 1. **ESP32 Setup**:
    - Flash the ESP32 firmware to collect sensor data and send it over BLE.
+```bash
+   pio run
+   ```
+
+```bash
+   pio run --target upload
+   ```
+
+  - View the serial monitor
+
+```bash
+   pio device monitor
+   ```
 
 2. **BLE Server (MacBook)**:
    - Install dependencies:
