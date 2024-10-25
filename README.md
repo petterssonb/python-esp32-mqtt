@@ -102,7 +102,7 @@ This repository includes a submodule for **arduino-esp32** under the `lib` direc
 
 1. **Clone the repository with submodules**:
    ```bash
-   git clone --recurse-submodules https://github.com/yourusername/python-esp32-mqtt.git
+   git clone --recurse-submodules https://github.com/petterssonb/python-esp32-mqtt.git
    ```
 
    - If you've already cloned the repository without submodules, initialize and update the submodule separately:
