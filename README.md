@@ -119,21 +119,21 @@ This repository includes a submodule for **arduino-esp32** under the `lib` direc
 
 1. **ESP32 Setup**:
    - Flash the ESP32 firmware to collect sensor data and send it over BLE.
-```bash
-   pio run
-   ```
+      ```bash
+      pio run
+      ```
 
-```bash
-   pio run --target upload
-   ```
+      ```bash
+      pio run --target upload
+      ```
 
-  - View the serial monitor
+   - View the serial monitor
 
-```bash
-   pio device monitor
-   ```
+      ```bash
+      pio device monitor
+      ```
 
-2. **BLE Server (MacBook)**:
+1. **BLE Server (MacBook)**:
    - Install dependencies:
      ```bash
      pip install Flask bleak requests
@@ -143,19 +143,19 @@ This repository includes a submodule for **arduino-esp32** under the `lib` direc
      python bleServer.py
      ```
 
-3. **Flask Server (MacBook)**:
+2. **Flask Server (MacBook)**:
    - Configure and start the Flask server:
      ```bash
      python server.py
      ```
 
-4. **MQTT Broker Setup (Raspberry Pi)**:
+3. **MQTT Broker Setup (Raspberry Pi)**:
    - Set up and run the MQTT broker in a Docker container:
      ```bash
      docker run -d -p 1883:1883 -p 9001:9001 eclipse-mosquitto
      ```
 
-5. **Netbird VPN**:
+4. **Netbird VPN**:
    - Configure a secure VPN tunnel between MacBook and Raspberry Pi.
 
 ---
